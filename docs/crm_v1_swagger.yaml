@@ -1,0 +1,2989 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "猫课 CRM API"
+  description: |
+    猫课客户关系管理系统 V1 版本的 Swagger 2.0 规范。
+    本文档基于最新的 V1 PRD 和现有的 REST API 草稿生成。
+    它是前端和后端开发的唯一真实来源。
+host: "localhost:8000"
+basePath: "/api/v1"
+schemes:
+  - "http"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+tags:
+  - name: "Authentication"
+    description: "登录和当前用户信息 API"
+  - name: "Roles"
+    description: "角色元数据 API"
+  - name: "Users"
+    description: "用户管理 API"
+  - name: "Customers"
+    description: "客户主数据 API"
+  - name: "Tags"
+    description: "客户标签 API"
+  - name: "Followups"
+    description: "销售跟进 API"
+  - name: "Opportunities"
+    description: "销售机会 API"
+  - name: "Services"
+    description: "咨询师服务和咨询分析 API"
+  - name: "Reminders"
+    description: "提醒 API"
+  - name: "Imports"
+    description: "批量导入 API"
+  - name: "Timeline"
+    description: "统一客户时间线 API"
+  - name: "Audit"
+    description: "审计日志 API"
+  - name: "System"
+    description: "健康和就绪检查 API"
+securityDefinitions:
+  BearerAuth:
+    type: "apiKey"
+    name: "Authorization"
+    in: "header"
+    description: "Use `Bearer <token>`."
+security:
+  - BearerAuth: []
+parameters:
+  PageParam:
+    name: "page"
+    in: "query"
+    type: "integer"
+    format: "int32"
+    minimum: 1
+    default: 1
+    description: "Page number, starting from 1."
+  PageSizeParam:
+    name: "page_size"
+    in: "query"
+    type: "integer"
+    format: "int32"
+    minimum: 1
+    maximum: 100
+    default: 20
+    description: "Page size."
+  KeywordParam:
+    name: "keyword"
+    in: "query"
+    type: "string"
+    description: "Fuzzy search keyword."
+  UserIdParam:
+    name: "userId"
+    in: "path"
+    required: true
+    type: "integer"
+    format: "int64"
+    description: "User ID."
+  CustomerIdParam:
+    name: "customerId"
+    in: "path"
+    required: true
+    type: "integer"
+    format: "int64"
+    description: "Customer ID."
+  TagIdParam:
+    name: "tagId"
+    in: "path"
+    required: true
+    type: "integer"
+    format: "int64"
+    description: "Tag ID."
+  FollowupIdParam:
+    name: "followupId"
+    in: "path"
+    required: true
+    type: "integer"
+    format: "int64"
+    description: "Follow-up ID."
+  OpportunityIdParam:
+    name: "opportunityId"
+    in: "path"
+    required: true
+    type: "integer"
+    format: "int64"
+    description: "Opportunity ID."
+  ServiceRecordIdParam:
+    name: "recordId"
+    in: "path"
+    required: true
+    type: "integer"
+    format: "int64"
+    description: "Service record ID."
+  ConsultationAnalysisIdParam:
+    name: "analysisId"
+    in: "path"
+    required: true
+    type: "integer"
+    format: "int64"
+    description: "Consultation analysis ID."
+  ReminderIdParam:
+    name: "reminderId"
+    in: "path"
+    required: true
+    type: "integer"
+    format: "int64"
+    description: "Reminder ID."
+  BatchNoParam:
+    name: "batchNo"
+    in: "path"
+    required: true
+    type: "string"
+    description: "Import batch number."
+responses:
+  Unauthorized:
+    description: "Unauthorized."
+    schema:
+      $ref: "#/definitions/ErrorResponse"
+  Forbidden:
+    description: "Forbidden."
+    schema:
+      $ref: "#/definitions/ErrorResponse"
+  NotFound:
+    description: "Resource not found."
+    schema:
+      $ref: "#/definitions/ErrorResponse"
+  ValidationError:
+    description: "Validation failed."
+    schema:
+      $ref: "#/definitions/ValidationErrorResponse"
+paths:
+  /auth/login:
+    post:
+      tags:
+        - "Authentication"
+      summary: "用户登录"
+      description: "使用账号和密码进行身份验证，然后返回访问令牌和用户资料。"
+      operationId: "login"
+      security: []
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/LoginRequest"
+      responses:
+        "200":
+          description: "登录成功。"
+          schema:
+            $ref: "#/definitions/LoginResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "422":
+          $ref: "#/responses/ValidationError"
+  /auth/refresh:
+    post:
+      tags:
+        - "Authentication"
+      summary: "刷新访问令牌"
+      operationId: "refreshToken"
+      security: []
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/RefreshTokenRequest"
+      responses:
+        "200":
+          description: "令牌已刷新。"
+          schema:
+            $ref: "#/definitions/RefreshTokenResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "422":
+          $ref: "#/responses/ValidationError"
+  /auth/logout:
+    post:
+      tags:
+        - "Authentication"
+      summary: "用户登出"
+      operationId: "logout"
+      responses:
+        "200":
+          description: "登出成功。"
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+  /auth/me:
+    get:
+      tags:
+        - "Authentication"
+      summary: "获取当前用户信息"
+      operationId: "getCurrentUser"
+      responses:
+        "200":
+          description: "当前用户资料。"
+          schema:
+            $ref: "#/definitions/UserResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+  /roles:
+    get:
+      tags:
+        - "Roles"
+      summary: "列出角色"
+      operationId: "listRoles"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      responses:
+        "200":
+          description: "角色列表。"
+          schema:
+            $ref: "#/definitions/RoleListResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+  /users:
+    get:
+      tags:
+        - "Users"
+      summary: "列出用户"
+      operationId: "listUsers"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/PageParam"
+        - $ref: "#/parameters/PageSizeParam"
+        - $ref: "#/parameters/KeywordParam"
+        - name: "role_name"
+          in: "query"
+          type: "string"
+          enum:
+            - "sales"
+            - "consultant"
+            - "admin"
+            - "super_admin"
+        - name: "status"
+          in: "query"
+          type: "string"
+          enum:
+            - "active"
+            - "inactive"
+      responses:
+        "200":
+          description: "用户列表。"
+          schema:
+            $ref: "#/definitions/UserListResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+    post:
+      tags:
+        - "Users"
+      summary: "创建用户"
+      description: "管理员可以创建销售和咨询师用户。超级管理员可以额外创建管理员用户。"
+      operationId: "createUser"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/UserCreateRequest"
+      responses:
+        "201":
+          description: "用户已创建。"
+          schema:
+            $ref: "#/definitions/UserResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "422":
+          $ref: "#/responses/ValidationError"
+  /users/{userId}:
+    get:
+      tags:
+        - "Users"
+      summary: "Get user detail"
+      operationId: "getUser"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/UserIdParam"
+      responses:
+        "200":
+          description: "User detail."
+          schema:
+            $ref: "#/definitions/UserResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+    patch:
+      tags:
+        - "Users"
+      summary: "Update user"
+      operationId: "updateUser"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/UserIdParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/UserUpdateRequest"
+      responses:
+        "200":
+          description: "User updated."
+          schema:
+            $ref: "#/definitions/UserResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/ValidationError"
+    delete:
+      tags:
+        - "Users"
+      summary: "Delete user"
+      description: "Soft delete."
+      operationId: "deleteUser"
+      x-permissions:
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/UserIdParam"
+      responses:
+        "200":
+          description: "User deleted."
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+  /users/{userId}/status:
+    patch:
+      tags:
+        - "Users"
+      summary: "Update user status"
+      operationId: "updateUserStatus"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/UserIdParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/UserStatusPatchRequest"
+      responses:
+        "200":
+          description: "User status updated."
+          schema:
+            $ref: "#/definitions/UserResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/ValidationError"
+  /customers:
+    get:
+      tags:
+        - "Customers"
+      summary: "列出客户"
+      description: |
+        销售用户只能访问自己负责的客户。
+        咨询师用户接收到屏蔽的手机号和微信值。
+        管理员和超级管理员可以访问所有客户。
+      operationId: "listCustomers"
+      parameters:
+        - $ref: "#/parameters/PageParam"
+        - $ref: "#/parameters/PageSizeParam"
+        - $ref: "#/parameters/KeywordParam"
+        - name: "status"
+          in: "query"
+          type: "string"
+          enum:
+            - "potential"
+            - "interested"
+            - "converted"
+            - "lost"
+        - name: "owner_user_id"
+          in: "query"
+          type: "integer"
+          format: "int64"
+        - name: "source_channel"
+          in: "query"
+          type: "string"
+        - name: "industry"
+          in: "query"
+          type: "string"
+        - name: "tag_id"
+          in: "query"
+          type: "integer"
+          format: "int64"
+      responses:
+        "200":
+          description: "客户列表。"
+          schema:
+            $ref: "#/definitions/CustomerListResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+    post:
+      tags:
+        - "Customers"
+      summary: "创建客户"
+      operationId: "createCustomer"
+      x-permissions:
+        - "sales"
+        - "admin"
+        - "super_admin"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/CustomerCreateRequest"
+      responses:
+        "201":
+          description: "客户已创建。"
+          schema:
+            $ref: "#/definitions/CustomerResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "422":
+          $ref: "#/responses/ValidationError"
+  /customers/{customerId}:
+    get:
+      tags:
+        - "Customers"
+      summary: "Get customer detail"
+      operationId: "getCustomer"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+      responses:
+        "200":
+          description: "Customer detail."
+          schema:
+            $ref: "#/definitions/CustomerResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+    patch:
+      tags:
+        - "Customers"
+      summary: "Update customer"
+      operationId: "updateCustomer"
+      x-permissions:
+        - "sales"
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/CustomerUpdateRequest"
+      responses:
+        "200":
+          description: "Customer updated."
+          schema:
+            $ref: "#/definitions/CustomerResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/ValidationError"
+    delete:
+      tags:
+        - "Customers"
+      summary: "Delete customer"
+      description: "Soft delete customer and write audit log."
+      operationId: "deleteCustomer"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+      responses:
+        "200":
+          description: "Customer deleted."
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+  /customers/{customerId}/owner:
+    patch:
+      tags:
+        - "Customers"
+      summary: "Transfer customer owner"
+      operationId: "transferCustomerOwner"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/CustomerOwnerPatchRequest"
+      responses:
+        "200":
+          description: "Customer owner updated."
+          schema:
+            $ref: "#/definitions/CustomerResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/ValidationError"
+  /customers/{customerId}/status:
+    patch:
+      tags:
+        - "Customers"
+      summary: "Update customer status"
+      operationId: "updateCustomerStatus"
+      x-permissions:
+        - "sales"
+        - "consultant"
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/CustomerStatusPatchRequest"
+      responses:
+        "200":
+          description: "Customer status updated."
+          schema:
+            $ref: "#/definitions/CustomerResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/ValidationError"
+  /tags:
+    get:
+      tags:
+        - "Tags"
+      summary: "List tags"
+      operationId: "listTags"
+      parameters:
+        - name: "tag_type"
+          in: "query"
+          type: "string"
+          enum:
+            - "sales"
+            - "consultant"
+      responses:
+        "200":
+          description: "Tag list."
+          schema:
+            $ref: "#/definitions/TagListResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+    post:
+      tags:
+        - "Tags"
+      summary: "Create tag"
+      operationId: "createTag"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/TagCreateRequest"
+      responses:
+        "201":
+          description: "Tag created."
+          schema:
+            $ref: "#/definitions/TagResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "422":
+          $ref: "#/responses/ValidationError"
+  /tags/{tagId}:
+    patch:
+      tags:
+        - "Tags"
+      summary: "Update tag"
+      operationId: "updateTag"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/TagIdParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/TagUpdateRequest"
+      responses:
+        "200":
+          description: "Tag updated."
+          schema:
+            $ref: "#/definitions/TagResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/ValidationError"
+    delete:
+      tags:
+        - "Tags"
+      summary: "Delete tag"
+      operationId: "deleteTag"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/TagIdParam"
+      responses:
+        "200":
+          description: "Tag deleted."
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+  /customers/{customerId}/tags:
+    get:
+      tags:
+        - "Tags"
+      summary: "Get customer tags"
+      operationId: "getCustomerTags"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+      responses:
+        "200":
+          description: "Customer tags."
+          schema:
+            $ref: "#/definitions/CustomerTagListResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+    post:
+      tags:
+        - "Tags"
+      summary: "Bind customer tags"
+      operationId: "bindCustomerTags"
+      x-permissions:
+        - "sales"
+        - "consultant"
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/CustomerTagBindRequest"
+      responses:
+        "200":
+          description: "Customer tags bound."
+          schema:
+            $ref: "#/definitions/CustomerTagListResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/ValidationError"
+  /customers/{customerId}/followups:
+    get:
+      tags:
+        - "Followups"
+      summary: "按客户列出跟进记录"
+      operationId: "listFollowupsByCustomer"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+        - $ref: "#/parameters/PageParam"
+        - $ref: "#/parameters/PageSizeParam"
+      responses:
+        "200":
+          description: "跟进记录列表。"
+          schema:
+            $ref: "#/definitions/FollowupListResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+    post:
+      tags:
+        - "Followups"
+      summary: "创建跟进记录"
+      operationId: "createFollowup"
+      x-permissions:
+        - "sales"
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/FollowupCreateRequest"
+      responses:
+        "201":
+          description: "跟进记录已创建。"
+          schema:
+            $ref: "#/definitions/FollowupResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/ValidationError"
+  /followups/{followupId}:
+    patch:
+      tags:
+        - "Followups"
+      summary: "Update follow-up"
+      operationId: "updateFollowup"
+      parameters:
+        - $ref: "#/parameters/FollowupIdParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/FollowupUpdateRequest"
+      responses:
+        "200":
+          description: "Follow-up updated."
+          schema:
+            $ref: "#/definitions/FollowupResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/ValidationError"
+    delete:
+      tags:
+        - "Followups"
+      summary: "Delete follow-up"
+      operationId: "deleteFollowup"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/FollowupIdParam"
+      responses:
+        "200":
+          description: "Follow-up deleted."
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+  /customers/{customerId}/opportunities:
+    get:
+      tags:
+        - "Opportunities"
+      summary: "按客户列出销售机会"
+      operationId: "listOpportunitiesByCustomer"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+        - $ref: "#/parameters/PageParam"
+        - $ref: "#/parameters/PageSizeParam"
+      responses:
+        "200":
+          description: "销售机会列表。"
+          schema:
+            $ref: "#/definitions/OpportunityListResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+    post:
+      tags:
+        - "Opportunities"
+      summary: "创建销售机会"
+      operationId: "createOpportunity"
+      x-permissions:
+        - "sales"
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/OpportunityCreateRequest"
+      responses:
+        "201":
+          description: "销售机会已创建。"
+          schema:
+            $ref: "#/definitions/OpportunityResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/ValidationError"
+  /opportunities/{opportunityId}:
+    patch:
+      tags:
+        - "Opportunities"
+      summary: "Update opportunity"
+      operationId: "updateOpportunity"
+      parameters:
+        - $ref: "#/parameters/OpportunityIdParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/OpportunityUpdateRequest"
+      responses:
+        "200":
+          description: "Opportunity updated."
+          schema:
+            $ref: "#/definitions/OpportunityResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/ValidationError"
+    delete:
+      tags:
+        - "Opportunities"
+      summary: "Delete opportunity"
+      operationId: "deleteOpportunity"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/OpportunityIdParam"
+      responses:
+        "200":
+          description: "Opportunity deleted."
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+  /customers/{customerId}/service-records:
+    get:
+      tags:
+        - "Services"
+      summary: "按客户列出服务记录"
+      operationId: "listServiceRecordsByCustomer"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+        - $ref: "#/parameters/PageParam"
+        - $ref: "#/parameters/PageSizeParam"
+      responses:
+        "200":
+          description: "服务记录列表。"
+          schema:
+            $ref: "#/definitions/ServiceRecordListResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+    post:
+      tags:
+        - "Services"
+      summary: "创建服务记录"
+      operationId: "createServiceRecord"
+      x-permissions:
+        - "consultant"
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/ServiceRecordCreateRequest"
+      responses:
+        "201":
+          description: "服务记录已创建。"
+          schema:
+            $ref: "#/definitions/ServiceRecordResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/ValidationError"
+  /service-records/{recordId}:
+    patch:
+      tags:
+        - "Services"
+      summary: "Update service record"
+      operationId: "updateServiceRecord"
+      parameters:
+        - $ref: "#/parameters/ServiceRecordIdParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/ServiceRecordUpdateRequest"
+      responses:
+        "200":
+          description: "Service record updated."
+          schema:
+            $ref: "#/definitions/ServiceRecordResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/ValidationError"
+  /customers/{customerId}/course-purchases:
+    get:
+      tags:
+        - "Services"
+      summary: "按客户列出课程购买记录"
+      operationId: "listCoursePurchasesByCustomer"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+        - $ref: "#/parameters/PageParam"
+        - $ref: "#/parameters/PageSizeParam"
+      responses:
+        "200":
+          description: "课程购买记录列表。"
+          schema:
+            $ref: "#/definitions/CoursePurchaseListResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+  /customers/{customerId}/course-attendances:
+    get:
+      tags:
+        - "Services"
+      summary: "按客户列出上课记录"
+      operationId: "listCourseAttendancesByCustomer"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+        - $ref: "#/parameters/PageParam"
+        - $ref: "#/parameters/PageSizeParam"
+      responses:
+        "200":
+          description: "上课记录列表。"
+          schema:
+            $ref: "#/definitions/CourseAttendanceListResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+    post:
+      tags:
+        - "Services"
+      summary: "创建咨询分析"
+      description: "创建咨询分析，可选文件上传。"
+      operationId: "createConsultationAnalysis"
+      consumes:
+        - "multipart/form-data"
+      x-permissions:
+        - "consultant"
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+        - name: "analysis_summary"
+          in: "formData"
+          required: false
+          type: "string"
+        - name: "customer_problem"
+          in: "formData"
+          required: false
+          type: "string"
+        - name: "consultation_result"
+          in: "formData"
+          required: false
+          type: "string"
+        - name: "file"
+          in: "formData"
+          required: false
+          type: "file"
+          description: "可选的上传分析附件。"
+      responses:
+        "201":
+          description: "咨询分析已创建。"
+          schema:
+            $ref: "#/definitions/ConsultationAnalysisResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/ValidationError"
+  /consultation-analysis/{analysisId}:
+    delete:
+      tags:
+        - "Services"
+      summary: "Delete consultation analysis"
+      operationId: "deleteConsultationAnalysis"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/ConsultationAnalysisIdParam"
+      responses:
+        "200":
+          description: "Consultation analysis deleted."
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+  /reminders:
+    get:
+      tags:
+        - "Reminders"
+      summary: "列出提醒"
+      description: "普通用户只能访问自己创建或分配的提醒。"
+      operationId: "listReminders"
+      parameters:
+        - $ref: "#/parameters/PageParam"
+        - $ref: "#/parameters/PageSizeParam"
+        - name: "assignee_user_id"
+          in: "query"
+          type: "integer"
+          format: "int64"
+        - name: "status"
+          in: "query"
+          type: "string"
+          enum:
+            - "pending"
+            - "done"
+            - "canceled"
+        - name: "start_time"
+          in: "query"
+          type: "string"
+          format: "date-time"
+        - name: "end_time"
+          in: "query"
+          type: "string"
+          format: "date-time"
+      responses:
+        "200":
+          description: "提醒列表。"
+          schema:
+            $ref: "#/definitions/ReminderListResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+    post:
+      tags:
+        - "Reminders"
+      summary: "创建提醒"
+      operationId: "createReminder"
+      x-permissions:
+        - "sales"
+        - "consultant"
+        - "admin"
+        - "super_admin"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/ReminderCreateRequest"
+      responses:
+        "201":
+          description: "提醒已创建。"
+          schema:
+            $ref: "#/definitions/ReminderResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "422":
+          $ref: "#/responses/ValidationError"
+  /customers/{customerId}/reminders:
+    get:
+      tags:
+        - "Reminders"
+      summary: "按客户列出提醒"
+      operationId: "listRemindersByCustomer"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+        - $ref: "#/parameters/PageParam"
+        - $ref: "#/parameters/PageSizeParam"
+        - name: "status"
+          in: "query"
+          type: "string"
+          enum:
+            - "pending"
+            - "done"
+            - "canceled"
+      responses:
+        "200":
+          description: "客户提醒列表。"
+          schema:
+            $ref: "#/definitions/ReminderListResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+  /reminders/{reminderId}:
+    patch:
+      tags:
+        - "Reminders"
+      summary: "Update reminder"
+      operationId: "updateReminder"
+      parameters:
+        - $ref: "#/parameters/ReminderIdParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/ReminderUpdateRequest"
+      responses:
+        "200":
+          description: "Reminder updated."
+          schema:
+            $ref: "#/definitions/ReminderResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/ValidationError"
+    delete:
+      tags:
+        - "Reminders"
+      summary: "Delete reminder"
+      operationId: "deleteReminder"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/ReminderIdParam"
+      responses:
+        "200":
+          description: "Reminder deleted."
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+  /reminders/{reminderId}/done:
+    patch:
+      tags:
+        - "Reminders"
+      summary: "Mark reminder as done"
+      operationId: "markReminderDone"
+      parameters:
+        - $ref: "#/parameters/ReminderIdParam"
+      responses:
+        "200":
+          description: "Reminder marked as done."
+          schema:
+            $ref: "#/definitions/ReminderResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+  /imports/course-purchases:
+    post:
+      tags:
+        - "Imports"
+      summary: "导入课程购买记录"
+      operationId: "importCoursePurchases"
+      consumes:
+        - "multipart/form-data"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - name: "file"
+          in: "formData"
+          required: true
+          type: "file"
+          description: "Excel 或 CSV 文件。"
+      responses:
+        "201":
+          description: "导入批次已创建。"
+          schema:
+            $ref: "#/definitions/ImportBatchResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "422":
+          $ref: "#/responses/ValidationError"
+  /imports/course-attendance:
+    post:
+      tags:
+        - "Imports"
+      summary: "导入课程出勤记录"
+      operationId: "importCourseAttendance"
+      consumes:
+        - "multipart/form-data"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - name: "file"
+          in: "formData"
+          required: true
+          type: "file"
+          description: "Excel 或 CSV 文件。"
+      responses:
+        "201":
+          description: "导入批次已创建。"
+          schema:
+            $ref: "#/definitions/ImportBatchResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "422":
+          $ref: "#/responses/ValidationError"
+  /imports/batches:
+    get:
+      tags:
+        - "Imports"
+      summary: "List import batches"
+      operationId: "listImportBatches"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/PageParam"
+        - $ref: "#/parameters/PageSizeParam"
+        - name: "import_type"
+          in: "query"
+          type: "string"
+          enum:
+            - "course_purchase"
+            - "course_attendance"
+        - name: "status"
+          in: "query"
+          type: "string"
+          enum:
+            - "processing"
+            - "completed"
+            - "failed"
+            - "partial_success"
+      responses:
+        "200":
+          description: "Import batch list."
+          schema:
+            $ref: "#/definitions/ImportBatchListResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+  /imports/batches/{batchNo}:
+    get:
+      tags:
+        - "Imports"
+      summary: "Get import batch detail"
+      operationId: "getImportBatch"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/BatchNoParam"
+      responses:
+        "200":
+          description: "Import batch detail."
+          schema:
+            $ref: "#/definitions/ImportBatchResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+  /imports/batches/{batchNo}/errors:
+    get:
+      tags:
+        - "Imports"
+      summary: "List import batch errors"
+      operationId: "listImportBatchErrors"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/BatchNoParam"
+        - $ref: "#/parameters/PageParam"
+        - $ref: "#/parameters/PageSizeParam"
+      responses:
+        "200":
+          description: "Import batch errors."
+          schema:
+            $ref: "#/definitions/ImportErrorListResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+  /customers/{customerId}/timeline:
+    get:
+      tags:
+        - "Timeline"
+      summary: "获取客户时间线"
+      operationId: "getCustomerTimeline"
+      parameters:
+        - $ref: "#/parameters/CustomerIdParam"
+        - $ref: "#/parameters/PageParam"
+        - $ref: "#/parameters/PageSizeParam"
+        - name: "event_type"
+          in: "query"
+          type: "string"
+          enum:
+            - "followup"
+            - "service_record"
+            - "consultation"
+            - "purchase"
+            - "attendance"
+            - "reminder"
+        - name: "start_time"
+          in: "query"
+          type: "string"
+          format: "date-time"
+        - name: "end_time"
+          in: "query"
+          type: "string"
+          format: "date-time"
+      responses:
+        "200":
+          description: "客户时间线。"
+          schema:
+            $ref: "#/definitions/PipelineEventListResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+        "404":
+          $ref: "#/responses/NotFound"
+  /audit-logs:
+    get:
+      tags:
+        - "Audit"
+      summary: "列出审计日志"
+      operationId: "listAuditLogs"
+      x-permissions:
+        - "admin"
+        - "super_admin"
+      parameters:
+        - $ref: "#/parameters/PageParam"
+        - $ref: "#/parameters/PageSizeParam"
+        - name: "actor_user_id"
+          in: "query"
+          type: "integer"
+          format: "int64"
+        - name: "resource_type"
+          in: "query"
+          type: "string"
+        - name: "action"
+          in: "query"
+          type: "string"
+        - name: "start_time"
+          in: "query"
+          type: "string"
+          format: "date-time"
+        - name: "end_time"
+          in: "query"
+          type: "string"
+          format: "date-time"
+      responses:
+        "200":
+          description: "审计日志列表。"
+          schema:
+            $ref: "#/definitions/AuditLogListResponse"
+        "401":
+          $ref: "#/responses/Unauthorized"
+        "403":
+          $ref: "#/responses/Forbidden"
+  /healthz:
+    get:
+      tags:
+        - "System"
+      summary: "存活探针"
+      operationId: "healthz"
+      security: []
+      responses:
+        "200":
+          description: "服务存活。"
+          schema:
+            $ref: "#/definitions/SystemStatusResponse"
+  /readyz:
+    get:
+      tags:
+        - "System"
+      summary: "就绪探针"
+      operationId: "readyz"
+      security: []
+      responses:
+        "200":
+          description: "服务就绪。"
+          schema:
+            $ref: "#/definitions/SystemStatusResponse"
+definitions:
+  BaseResponse:
+    type: "object"
+    required:
+      - "code"
+      - "message"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+        example: 0
+        description: "响应代码，0 表示成功"
+      message:
+        type: "string"
+        example: "success"
+        description: "响应消息"
+  SuccessResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            type: "object"
+            additionalProperties: false
+            description: "成功响应数据"
+  ErrorResponse:
+    type: "object"
+    required:
+      - "code"
+      - "message"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+        example: 1001
+        description: "错误代码"
+      message:
+        type: "string"
+        example: "forbidden"
+        description: "错误消息"
+  ValidationErrorItem:
+    type: "object"
+    properties:
+      field:
+        type: "string"
+        description: "字段名"
+      reason:
+        type: "string"
+        description: "错误原因"
+  ValidationErrorResponse:
+    allOf:
+      - $ref: "#/definitions/ErrorResponse"
+      - type: "object"
+        properties:
+          errors:
+            type: "array"
+            items:
+              $ref: "#/definitions/ValidationErrorItem"
+            description: "验证错误列表"
+  Role:
+    type: "object"
+    required:
+      - "id"
+      - "role_name"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        example: 1
+        description: "角色 ID"
+      role_name:
+        type: "string"
+        enum:
+          - "sales"
+          - "consultant"
+          - "admin"
+          - "super_admin"
+        example: "sales"
+        description: "角色名称"
+      created_at:
+        type: "string"
+        format: "date-time"
+        description: "创建时间"
+  User:
+    type: "object"
+    required:
+      - "id"
+      - "name"
+      - "role_name"
+      - "status"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        example: 1001
+        description: "用户 ID"
+      name:
+        type: "string"
+        example: "Alice"
+        description: "用户姓名"
+      role_name:
+        type: "string"
+        enum:
+          - "sales"
+          - "consultant"
+          - "admin"
+          - "super_admin"
+        description: "用户角色"
+      phone:
+        type: "string"
+        example: "13800138000"
+        description: "手机号"
+      email:
+        type: "string"
+        example: "alice@example.com"
+        description: "邮箱"
+      status:
+        type: "string"
+        enum:
+          - "active"
+          - "inactive"
+        description: "用户状态"
+      last_login_at:
+        type: "string"
+        format: "date-time"
+        description: "最后登录时间"
+      created_at:
+        type: "string"
+        format: "date-time"
+        description: "创建时间"
+      updated_at:
+        type: "string"
+        format: "date-time"
+        description: "更新时间"
+  Customer:
+    type: "object"
+    required:
+      - "id"
+      - "name"
+      - "owner_user_id"
+      - "customer_status"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "客户 ID"
+      name:
+        type: "string"
+        example: "Bob"
+        description: "客户姓名"
+      phone:
+        type: "string"
+        description: "手机号（咨询师角色下屏蔽）"
+        example: "138****8000"
+      wechat:
+        type: "string"
+        description: "微信号（咨询师角色下屏蔽）"
+        example: "wx****123"
+      company_name:
+        type: "string"
+        example: "Example Corp"
+        description: "公司名称"
+      industry:
+        type: "string"
+        example: "Education"
+        description: "行业"
+      source_channel:
+        type: "string"
+        example: "Douyin"
+        description: "来源渠道"
+      owner_user_id:
+        type: "integer"
+        format: "int64"
+        description: "负责人用户 ID"
+      customer_status:
+        type: "string"
+        enum:
+          - "potential"
+          - "interested"
+          - "converted"
+          - "lost"
+        description: "客户状态"
+      tags:
+        type: "array"
+        items:
+          $ref: "#/definitions/Tag"
+        description: "客户标签列表"
+      last_followup_at:
+        type: "string"
+        format: "date-time"
+        description: "最后跟进时间"
+      next_followup_at:
+        type: "string"
+        format: "date-time"
+        description: "下次跟进时间"
+      created_at:
+        type: "string"
+        format: "date-time"
+        description: "创建时间"
+      updated_at:
+        type: "string"
+        format: "date-time"
+        description: "更新时间"
+  Tag:
+    type: "object"
+    required:
+      - "id"
+      - "tag_name"
+      - "tag_type"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      tag_name:
+        type: "string"
+        example: "renewal-risk"
+      tag_type:
+        type: "string"
+        enum:
+          - "sales"
+          - "consultant"
+  Followup:
+    type: "object"
+    required:
+      - "id"
+      - "customer_id"
+      - "sales_id"
+      - "followup_time"
+      - "contact_method"
+      - "content"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      customer_id:
+        type: "integer"
+        format: "int64"
+      sales_id:
+        type: "integer"
+        format: "int64"
+      followup_time:
+        type: "string"
+        format: "date-time"
+      contact_method:
+        type: "string"
+        example: "phone"
+      content:
+        type: "string"
+      result:
+        type: "string"
+        enum:
+          - "no_answer"
+          - "contacted"
+          - "interested"
+          - "rejected"
+          - "pending"
+      next_action_time:
+        type: "string"
+        format: "date-time"
+      created_at:
+        type: "string"
+        format: "date-time"
+  Opportunity:
+    type: "object"
+    required:
+      - "id"
+      - "customer_id"
+      - "owner_user_id"
+      - "stage"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      customer_id:
+        type: "integer"
+        format: "int64"
+      owner_user_id:
+        type: "integer"
+        format: "int64"
+      stage:
+        type: "string"
+        enum:
+          - "new"
+          - "qualified"
+          - "proposal"
+          - "negotiation"
+          - "won"
+          - "lost"
+      probability:
+        type: "number"
+        format: "double"
+        example: 70
+      expected_close_date:
+        type: "string"
+        format: "date"
+      expected_amount:
+        type: "number"
+        format: "double"
+        example: 50000
+      currency:
+        type: "string"
+        example: "CNY"
+      closed_at:
+        type: "string"
+        format: "date-time"
+      created_at:
+        type: "string"
+        format: "date-time"
+  ServiceRecord:
+    type: "object"
+    required:
+      - "id"
+      - "customer_id"
+      - "consultant_id"
+      - "service_time"
+      - "service_content"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      customer_id:
+        type: "integer"
+        format: "int64"
+      consultant_id:
+        type: "integer"
+        format: "int64"
+      service_time:
+        type: "string"
+        format: "date-time"
+      service_content:
+        type: "string"
+      customer_feedback:
+        type: "string"
+      satisfaction_score:
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        maximum: 5
+      created_at:
+        type: "string"
+        format: "date-time"
+      updated_at:
+        type: "string"
+        format: "date-time"
+  ConsultationAnalysis:
+    type: "object"
+    required:
+      - "id"
+      - "customer_id"
+      - "consultant_id"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "咨询分析 ID"
+      customer_id:
+        type: "integer"
+        format: "int64"
+        description: "客户 ID"
+      consultant_id:
+        type: "integer"
+        format: "int64"
+        description: "咨询师 ID"
+      analysis_summary:
+        type: "string"
+        description: "分析总结"
+      customer_problem:
+        type: "string"
+        description: "客户问题"
+      consultation_result:
+        type: "string"
+        description: "咨询结果"
+      uploaded_file_url:
+        type: "string"
+        example: "https://files.example.com/analysis-1.pdf"
+        description: "上传文件 URL"
+      created_at:
+        type: "string"
+        format: "date-time"
+        description: "创建时间"
+  CoursePurchase:
+    type: "object"
+    required:
+      - "id"
+      - "customer_id"
+      - "course_name"
+      - "purchase_date"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "购买记录 ID"
+      customer_id:
+        type: "integer"
+        format: "int64"
+        description: "客户 ID"
+      course_name:
+        type: "string"
+        example: "Python 基础课程"
+        description: "课程名称"
+      purchase_date:
+        type: "string"
+        format: "date"
+        description: "购买日期"
+      amount:
+        type: "number"
+        format: "float"
+        example: 500.0
+        description: "购买金额"
+      currency:
+        type: "string"
+        example: "CNY"
+        description: "货币"
+      import_source:
+        type: "string"
+        example: "excel"
+        description: "导入来源"
+      created_at:
+        type: "string"
+        format: "date-time"
+        description: "创建时间"
+  CourseAttendance:
+    type: "object"
+    required:
+      - "id"
+      - "customer_id"
+      - "course_name"
+      - "class_date"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "上课记录 ID"
+      customer_id:
+        type: "integer"
+        format: "int64"
+        description: "客户 ID"
+      course_name:
+        type: "string"
+        example: "Python 基础课程"
+        description: "课程名称"
+      class_date:
+        type: "string"
+        format: "date"
+        description: "上课日期"
+      status:
+        type: "string"
+        enum:
+          - "attended"
+          - "absent"
+          - "cancelled"
+        example: "attended"
+        description: "出勤状态"
+      notes:
+        type: "string"
+        description: "备注"
+      created_at:
+        type: "string"
+        format: "date-time"
+        description: "创建时间"
+  Reminder:
+    type: "object"
+    required:
+      - "id"
+      - "customer_id"
+      - "created_by"
+      - "assignee_user_id"
+      - "reminder_type"
+      - "reminder_time"
+      - "status"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "提醒 ID"
+      customer_id:
+        type: "integer"
+        format: "int64"
+        description: "客户 ID"
+      created_by:
+        type: "integer"
+        format: "int64"
+        description: "创建者 ID"
+      assignee_user_id:
+        type: "integer"
+        format: "int64"
+        description: "分配用户 ID"
+      reminder_type:
+        type: "string"
+        enum:
+          - "followup"
+          - "renewal"
+          - "progress_check"
+          - "other"
+        description: "提醒类型"
+      reminder_time:
+        type: "string"
+        format: "date-time"
+        description: "提醒时间"
+      priority:
+        type: "string"
+        enum:
+          - "low"
+          - "medium"
+          - "high"
+        description: "优先级"
+      status:
+        type: "string"
+        enum:
+          - "pending"
+          - "done"
+          - "canceled"
+        description: "状态"
+      content:
+        type: "string"
+        description: "内容"
+      done_at:
+        type: "string"
+        format: "date-time"
+        description: "完成时间"
+      created_at:
+        type: "string"
+        format: "date-time"
+        description: "创建时间"
+      updated_at:
+        type: "string"
+        format: "date-time"
+        description: "更新时间"
+  CoursePurchaseListResponse:
+    type: "object"
+    properties:
+      data:
+        type: "array"
+        items:
+          $ref: "#/definitions/CoursePurchase"
+        description: "课程购买记录列表"
+      total:
+        type: "integer"
+        format: "int32"
+        description: "总记录数"
+      page:
+        type: "integer"
+        format: "int32"
+        description: "当前页"
+      size:
+        type: "integer"
+        format: "int32"
+        description: "每页大小"
+  CourseAttendanceListResponse:
+    type: "object"
+    properties:
+      data:
+        type: "array"
+        items:
+          $ref: "#/definitions/CourseAttendance"
+        description: "上课记录列表"
+      total:
+        type: "integer"
+        format: "int32"
+        description: "总记录数"
+      page:
+        type: "integer"
+        format: "int32"
+        description: "当前页"
+      size:
+        type: "integer"
+        format: "int32"
+        description: "每页大小"
+  ImportBatch:
+    type: "object"
+    required:
+      - "id"
+      - "batch_no"
+      - "import_type"
+      - "status"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      batch_no:
+        type: "string"
+        example: "IMP202603150001"
+      import_type:
+        type: "string"
+        enum:
+          - "course_purchase"
+          - "course_attendance"
+      file_name:
+        type: "string"
+      file_url:
+        type: "string"
+      status:
+        type: "string"
+        enum:
+          - "processing"
+          - "completed"
+          - "failed"
+          - "partial_success"
+      total_rows:
+        type: "integer"
+        format: "int32"
+      success_rows:
+        type: "integer"
+        format: "int32"
+      failed_rows:
+        type: "integer"
+        format: "int32"
+      started_at:
+        type: "string"
+        format: "date-time"
+      finished_at:
+        type: "string"
+        format: "date-time"
+      created_at:
+        type: "string"
+        format: "date-time"
+  ImportError:
+    type: "object"
+    required:
+      - "id"
+      - "row_no"
+      - "error_code"
+      - "error_message"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      row_no:
+        type: "integer"
+        format: "int32"
+      error_code:
+        type: "string"
+        example: "customer_not_found"
+      error_message:
+        type: "string"
+      row_data:
+        type: "object"
+        additionalProperties: true
+      created_at:
+        type: "string"
+        format: "date-time"
+  PipelineEvent:
+    type: "object"
+    required:
+      - "id"
+      - "customer_id"
+      - "event_type"
+      - "reference_id"
+      - "event_time"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      customer_id:
+        type: "integer"
+        format: "int64"
+      event_type:
+        type: "string"
+        enum:
+          - "followup"
+          - "service_record"
+          - "consultation"
+          - "purchase"
+          - "attendance"
+          - "reminder"
+      reference_id:
+        type: "integer"
+        format: "int64"
+      event_time:
+        type: "string"
+        format: "date-time"
+      created_at:
+        type: "string"
+        format: "date-time"
+  AuditLog:
+    type: "object"
+    required:
+      - "id"
+      - "action"
+      - "resource_type"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      actor_user_id:
+        type: "integer"
+        format: "int64"
+      action:
+        type: "string"
+        example: "customer.delete"
+      resource_type:
+        type: "string"
+        example: "customer"
+      resource_id:
+        type: "integer"
+        format: "int64"
+      before_data:
+        type: "object"
+        additionalProperties: true
+      after_data:
+        type: "object"
+        additionalProperties: true
+      ip_address:
+        type: "string"
+        example: "127.0.0.1"
+      user_agent:
+        type: "string"
+      created_at:
+        type: "string"
+        format: "date-time"
+  SystemStatus:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        example: "ok"
+      timestamp:
+        type: "string"
+        format: "date-time"
+  LoginRequest:
+    type: "object"
+    required:
+      - "account"
+      - "password"
+    properties:
+      account:
+        type: "string"
+        example: "alice@example.com"
+      password:
+        type: "string"
+        format: "password"
+  RefreshTokenRequest:
+    type: "object"
+    required:
+      - "refresh_token"
+    properties:
+      refresh_token:
+        type: "string"
+  LoginData:
+    type: "object"
+    required:
+      - "access_token"
+      - "refresh_token"
+      - "token_type"
+      - "expires_in"
+      - "user"
+    properties:
+      access_token:
+        type: "string"
+      refresh_token:
+        type: "string"
+      token_type:
+        type: "string"
+        example: "bearer"
+      expires_in:
+        type: "integer"
+        format: "int32"
+        example: 3600
+      user:
+        $ref: "#/definitions/User"
+  RefreshTokenData:
+    type: "object"
+    properties:
+      access_token:
+        type: "string"
+      token_type:
+        type: "string"
+        example: "bearer"
+      expires_in:
+        type: "integer"
+        format: "int32"
+        example: 3600
+  UserCreateRequest:
+    type: "object"
+    required:
+      - "name"
+      - "role_name"
+      - "password"
+    properties:
+      name:
+        type: "string"
+      role_name:
+        type: "string"
+        enum:
+          - "sales"
+          - "consultant"
+          - "admin"
+      phone:
+        type: "string"
+      email:
+        type: "string"
+      password:
+        type: "string"
+        format: "password"
+  UserUpdateRequest:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      phone:
+        type: "string"
+      email:
+        type: "string"
+      role_name:
+        type: "string"
+        enum:
+          - "sales"
+          - "consultant"
+          - "admin"
+          - "super_admin"
+  UserStatusPatchRequest:
+    type: "object"
+    required:
+      - "status"
+    properties:
+      status:
+        type: "string"
+        enum:
+          - "active"
+          - "inactive"
+  CustomerCreateRequest:
+    type: "object"
+    required:
+      - "name"
+      - "owner_user_id"
+    properties:
+      name:
+        type: "string"
+      phone:
+        type: "string"
+      wechat:
+        type: "string"
+      company_name:
+        type: "string"
+      industry:
+        type: "string"
+      source_channel:
+        type: "string"
+      owner_user_id:
+        type: "integer"
+        format: "int64"
+      customer_status:
+        type: "string"
+        enum:
+          - "potential"
+          - "interested"
+          - "converted"
+          - "lost"
+      tag_ids:
+        type: "array"
+        items:
+          type: "integer"
+          format: "int64"
+  CustomerUpdateRequest:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      phone:
+        type: "string"
+      wechat:
+        type: "string"
+      company_name:
+        type: "string"
+      industry:
+        type: "string"
+      source_channel:
+        type: "string"
+      owner_user_id:
+        type: "integer"
+        format: "int64"
+      customer_status:
+        type: "string"
+        enum:
+          - "potential"
+          - "interested"
+          - "converted"
+          - "lost"
+      tag_ids:
+        type: "array"
+        items:
+          type: "integer"
+          format: "int64"
+  CustomerOwnerPatchRequest:
+    type: "object"
+    required:
+      - "owner_user_id"
+    properties:
+      owner_user_id:
+        type: "integer"
+        format: "int64"
+  CustomerStatusPatchRequest:
+    type: "object"
+    required:
+      - "customer_status"
+    properties:
+      customer_status:
+        type: "string"
+        enum:
+          - "potential"
+          - "interested"
+          - "converted"
+          - "lost"
+  TagCreateRequest:
+    type: "object"
+    required:
+      - "tag_name"
+      - "tag_type"
+    properties:
+      tag_name:
+        type: "string"
+      tag_type:
+        type: "string"
+        enum:
+          - "sales"
+          - "consultant"
+  TagUpdateRequest:
+    type: "object"
+    properties:
+      tag_name:
+        type: "string"
+      tag_type:
+        type: "string"
+        enum:
+          - "sales"
+          - "consultant"
+  CustomerTagBindRequest:
+    type: "object"
+    required:
+      - "tag_ids"
+    properties:
+      tag_ids:
+        type: "array"
+        items:
+          type: "integer"
+          format: "int64"
+  FollowupCreateRequest:
+    type: "object"
+    required:
+      - "followup_time"
+      - "contact_method"
+      - "content"
+    properties:
+      followup_time:
+        type: "string"
+        format: "date-time"
+      contact_method:
+        type: "string"
+      content:
+        type: "string"
+      result:
+        type: "string"
+        enum:
+          - "no_answer"
+          - "contacted"
+          - "interested"
+          - "rejected"
+          - "pending"
+      next_action_time:
+        type: "string"
+        format: "date-time"
+  FollowupUpdateRequest:
+    type: "object"
+    properties:
+      followup_time:
+        type: "string"
+        format: "date-time"
+      contact_method:
+        type: "string"
+      content:
+        type: "string"
+      result:
+        type: "string"
+        enum:
+          - "no_answer"
+          - "contacted"
+          - "interested"
+          - "rejected"
+          - "pending"
+      next_action_time:
+        type: "string"
+        format: "date-time"
+  OpportunityCreateRequest:
+    type: "object"
+    required:
+      - "stage"
+    properties:
+      stage:
+        type: "string"
+        enum:
+          - "new"
+          - "qualified"
+          - "proposal"
+          - "negotiation"
+          - "won"
+          - "lost"
+      probability:
+        type: "number"
+        format: "double"
+      expected_close_date:
+        type: "string"
+        format: "date"
+      expected_amount:
+        type: "number"
+        format: "double"
+      currency:
+        type: "string"
+  OpportunityUpdateRequest:
+    type: "object"
+    properties:
+      stage:
+        type: "string"
+        enum:
+          - "new"
+          - "qualified"
+          - "proposal"
+          - "negotiation"
+          - "won"
+          - "lost"
+      probability:
+        type: "number"
+        format: "double"
+      expected_close_date:
+        type: "string"
+        format: "date"
+      expected_amount:
+        type: "number"
+        format: "double"
+      currency:
+        type: "string"
+      closed_at:
+        type: "string"
+        format: "date-time"
+  ServiceRecordCreateRequest:
+    type: "object"
+    required:
+      - "service_time"
+      - "service_content"
+    properties:
+      service_time:
+        type: "string"
+        format: "date-time"
+      service_content:
+        type: "string"
+      customer_feedback:
+        type: "string"
+      satisfaction_score:
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        maximum: 5
+  ServiceRecordUpdateRequest:
+    type: "object"
+    properties:
+      service_time:
+        type: "string"
+        format: "date-time"
+      service_content:
+        type: "string"
+      customer_feedback:
+        type: "string"
+      satisfaction_score:
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        maximum: 5
+  ReminderCreateRequest:
+    type: "object"
+    required:
+      - "customer_id"
+      - "assignee_user_id"
+      - "reminder_type"
+      - "reminder_time"
+    properties:
+      customer_id:
+        type: "integer"
+        format: "int64"
+      assignee_user_id:
+        type: "integer"
+        format: "int64"
+      reminder_type:
+        type: "string"
+        enum:
+          - "followup"
+          - "renewal"
+          - "progress_check"
+          - "other"
+      reminder_time:
+        type: "string"
+        format: "date-time"
+      priority:
+        type: "string"
+        enum:
+          - "low"
+          - "medium"
+          - "high"
+      content:
+        type: "string"
+  ReminderUpdateRequest:
+    type: "object"
+    properties:
+      assignee_user_id:
+        type: "integer"
+        format: "int64"
+      reminder_time:
+        type: "string"
+        format: "date-time"
+      priority:
+        type: "string"
+        enum:
+          - "low"
+          - "medium"
+          - "high"
+      status:
+        type: "string"
+        enum:
+          - "pending"
+          - "done"
+          - "canceled"
+      content:
+        type: "string"
+  LoginResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            $ref: "#/definitions/LoginData"
+  RefreshTokenResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            $ref: "#/definitions/RefreshTokenData"
+  UserResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            $ref: "#/definitions/User"
+  RoleListResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/Role"
+  UserListResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              items:
+                type: "array"
+                items:
+                  $ref: "#/definitions/User"
+              total:
+                type: "integer"
+                format: "int64"
+              page:
+                type: "integer"
+                format: "int32"
+              page_size:
+                type: "integer"
+                format: "int32"
+  CustomerResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            $ref: "#/definitions/Customer"
+  CustomerListResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              items:
+                type: "array"
+                items:
+                  $ref: "#/definitions/Customer"
+              total:
+                type: "integer"
+                format: "int64"
+              page:
+                type: "integer"
+                format: "int32"
+              page_size:
+                type: "integer"
+                format: "int32"
+  TagResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            $ref: "#/definitions/Tag"
+  TagListResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/Tag"
+  CustomerTagListResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            type: "array"
+            items:
+              $ref: "#/definitions/Tag"
+  FollowupResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            $ref: "#/definitions/Followup"
+  FollowupListResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              items:
+                type: "array"
+                items:
+                  $ref: "#/definitions/Followup"
+              total:
+                type: "integer"
+                format: "int64"
+              page:
+                type: "integer"
+                format: "int32"
+              page_size:
+                type: "integer"
+                format: "int32"
+  OpportunityResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            $ref: "#/definitions/Opportunity"
+  OpportunityListResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              items:
+                type: "array"
+                items:
+                  $ref: "#/definitions/Opportunity"
+              total:
+                type: "integer"
+                format: "int64"
+              page:
+                type: "integer"
+                format: "int32"
+              page_size:
+                type: "integer"
+                format: "int32"
+  ServiceRecordResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            $ref: "#/definitions/ServiceRecord"
+  ServiceRecordListResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              items:
+                type: "array"
+                items:
+                  $ref: "#/definitions/ServiceRecord"
+              total:
+                type: "integer"
+                format: "int64"
+              page:
+                type: "integer"
+                format: "int32"
+              page_size:
+                type: "integer"
+                format: "int32"
+  ConsultationAnalysisResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            $ref: "#/definitions/ConsultationAnalysis"
+  ConsultationAnalysisListResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              items:
+                type: "array"
+                items:
+                  $ref: "#/definitions/ConsultationAnalysis"
+              total:
+                type: "integer"
+                format: "int64"
+              page:
+                type: "integer"
+                format: "int32"
+              page_size:
+                type: "integer"
+                format: "int32"
+  ReminderResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            $ref: "#/definitions/Reminder"
+  ReminderListResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              items:
+                type: "array"
+                items:
+                  $ref: "#/definitions/Reminder"
+              total:
+                type: "integer"
+                format: "int64"
+              page:
+                type: "integer"
+                format: "int32"
+              page_size:
+                type: "integer"
+                format: "int32"
+  ImportBatchResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            $ref: "#/definitions/ImportBatch"
+  ImportBatchListResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              items:
+                type: "array"
+                items:
+                  $ref: "#/definitions/ImportBatch"
+              total:
+                type: "integer"
+                format: "int64"
+              page:
+                type: "integer"
+                format: "int32"
+              page_size:
+                type: "integer"
+                format: "int32"
+  ImportErrorListResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              items:
+                type: "array"
+                items:
+                  $ref: "#/definitions/ImportError"
+              total:
+                type: "integer"
+                format: "int64"
+              page:
+                type: "integer"
+                format: "int32"
+              page_size:
+                type: "integer"
+                format: "int32"
+  PipelineEventListResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              items:
+                type: "array"
+                items:
+                  $ref: "#/definitions/PipelineEvent"
+              total:
+                type: "integer"
+                format: "int64"
+              page:
+                type: "integer"
+                format: "int32"
+              page_size:
+                type: "integer"
+                format: "int32"
+  AuditLogListResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              items:
+                type: "array"
+                items:
+                  $ref: "#/definitions/AuditLog"
+              total:
+                type: "integer"
+                format: "int64"
+              page:
+                type: "integer"
+                format: "int32"
+              page_size:
+                type: "integer"
+                format: "int32"
+  SystemStatusResponse:
+    allOf:
+      - $ref: "#/definitions/BaseResponse"
+      - type: "object"
+        properties:
+          data:
+            $ref: "#/definitions/SystemStatus"
