@@ -63,7 +63,8 @@ V1 版本目标：在 1-2 个月内上线稳定可用的 CRM 系统，建立完�
 ### 前端
 - **框架**: React + TypeScript
 - **UI 库**: Ant Design
-- **状态管理**: Redux Toolkit / Zustand
+- **状态管理**:  Zustand
+- **API 消费**: `openapi-typescript` + `openapi-fetch` (由后端 OpenAPI 规范自动生成类型)
 - **构建工具**: Vite
 
 ### 部署与工具
@@ -85,10 +86,11 @@ maokecrm/
 │   ├── crm_v1_prd_latest.md # V1 最新 PRD
 │   ├── crm_v1_swagger.yaml  # Swagger API 规范
 │   └── crm_er_diagram.md    # 实体关系图
-└── src/                     # 源代码 (待创建)
-    ├── backend/            # 后端代码
-    ├── frontend/           # 前端代码
-    └── database/           # 数据库脚本
+├── backend/                  # FastAPI 后端
+│
+├── frontend/                 # React 前端
+│
+├── database/                 # 数据库脚本
 ```
 
 ## 🚀 快速开始
@@ -106,7 +108,7 @@ python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # 2. 安装依赖
-pip install fastapi uvicorn sqlalchemy psycopg2-binary
+pip install fastapi uvicorn SQLModel psycopg2-binary
 
 # 3. 启动数据库
 # 使用 Docker 启动 PostgreSQL
