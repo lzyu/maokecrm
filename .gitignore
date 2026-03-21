@@ -1,0 +1,39 @@
+# Dependencies
+frontend/node_modules/
+backend/venv/
+backend/__pycache__/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+.playwright-mcp/
+
+# Claude
+.claude/
+
+# Temporary files
+*.tmp
+*.temp

@@ -1,0 +1,57 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-bg-primary);
+  padding: 0 var(--spacing-xl);
+  height: 64px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.headerCollapsed {
+  margin-left: var(--sidebar-collapsed-width);
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  letter-spacing: -0.3px;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+}
+
+.userLink {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  color: var(--color-text-primary);
+}
+
+.userLink:hover {
+  background-color: rgba(102, 126, 234, 0.08);
+}
+
+.userName {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Avatar styling */
+.userLink :global(.ant-avatar) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
