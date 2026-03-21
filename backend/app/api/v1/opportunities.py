@@ -261,7 +261,7 @@ async def create_opportunity(
         "expected_amount": request.expected_amount or 0,
         "probability": probability,
         "stage": request.stage,
-        "expected_close_date": request.expected_close_date,
+        "expected_close_date": request.expected_close_date if request.expected_close_date else None,
     }
 
     result = await session.execute(insert_query, params)
@@ -371,7 +371,8 @@ async def update_opportunity(
 
     if request.expected_close_date is not None:
         update_fields.append("expected_close_date = :expected_close_date")
-        params["expected_close_date"] = request.expected_close_date
+        # Handle empty string as NULL
+        params["expected_close_date"] = request.expected_close_date if request.expected_close_date else None
 
     if update_fields:
         update_fields.append("updated_at = NOW()")
