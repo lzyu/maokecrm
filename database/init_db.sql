@@ -156,6 +156,7 @@ CREATE TABLE IF NOT EXISTS sales_opportunities (
   id                   BIGSERIAL PRIMARY KEY,
   customer_id          BIGINT NOT NULL REFERENCES customers(id),
   owner_user_id        BIGINT NOT NULL REFERENCES users(id),
+  opportunity_name     VARCHAR(200) NOT NULL DEFAULT '',
   stage                VARCHAR(30) NOT NULL CHECK (stage IN ('new', 'qualified', 'proposal', 'negotiation', 'won', 'lost')),
   probability          NUMERIC(5,2) CHECK (probability >= 0 AND probability <= 100),
   expected_close_date  DATE,

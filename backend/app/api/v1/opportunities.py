@@ -4,6 +4,7 @@ from datetime import datetime, date
 
 from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import CurrentUser, get_session
@@ -104,12 +105,12 @@ async def list_opportunities(
         params["owner_user_id"] = current_user.id
 
     # Count query
-    count_query = f"SELECT COUNT(*) FROM sales_opportunities so WHERE {base_where}"
+    count_query = text(f"SELECT COUNT(*) FROM sales_opportunities so WHERE {base_where}")
     result = await session.execute(count_query, params)
     total = result.scalar()
 
     # Data query
-    data_query = f"""
+    data_query = text(f"""
         SELECT so.id, so.customer_id, c.name as customer_name, so.opportunity_name,
                so.expected_amount, so.probability, so.stage, so.expected_close_date,
                so.owner_user_id, u.name as owner_name, so.created_at, so.updated_at
@@ -119,7 +120,7 @@ async def list_opportunities(
         WHERE {base_where}
         ORDER BY so.created_at DESC
         OFFSET :offset LIMIT :limit
-    """
+    """)
     params["offset"] = offset
     params["limit"] = page_size
 
@@ -169,7 +170,7 @@ async def get_kanban_view(
         params["owner_user_id"] = current_user.id
 
     # Data query
-    data_query = f"""
+    data_query = text(f"""
         SELECT so.id, so.customer_id, c.name as customer_name, so.opportunity_name,
                so.expected_amount, so.probability, so.stage, so.expected_close_date,
                so.owner_user_id, u.name as owner_name, so.created_at, so.updated_at
@@ -178,7 +179,7 @@ async def get_kanban_view(
         LEFT JOIN users u ON so.owner_user_id = u.id
         WHERE {base_where}
         ORDER BY so.created_at DESC
-    """
+    """)
 
     result = await session.execute(data_query, params)
     rows = result.fetchall()
@@ -217,7 +218,7 @@ async def create_opportunity(
 ):
     """Create a sales opportunity."""
     # Verify customer exists
-    customer_query = "SELECT id, owner_user_id FROM customers WHERE id = :id AND deleted_at IS NULL"
+    customer_query = text("SELECT id, owner_user_id FROM customers WHERE id = :id AND deleted_at IS NULL")
     result = await session.execute(customer_query, {"id": request.customer_id})
     customer = result.fetchone()
 
@@ -247,12 +248,12 @@ async def create_opportunity(
         probability = stage_probabilities.get(request.stage, 10)
 
     # Insert opportunity
-    insert_query = """
+    insert_query = text("""
         INSERT INTO sales_opportunities
         (customer_id, owner_user_id, opportunity_name, expected_amount, probability, stage, expected_close_date, created_at, updated_at)
         VALUES (:customer_id, :owner_user_id, :opportunity_name, :expected_amount, :probability, :stage, :expected_close_date, NOW(), NOW())
         RETURNING id, created_at, updated_at
-    """
+    """)
     params = {
         "customer_id": request.customer_id,
         "owner_user_id": current_user.id,
@@ -290,7 +291,7 @@ async def get_opportunity(
     session: AsyncSession = Depends(get_session),
 ):
     """Get a single opportunity by ID."""
-    query = """
+    query = text("""
         SELECT so.id, so.customer_id, c.name as customer_name, so.opportunity_name,
                so.expected_amount, so.probability, so.stage, so.expected_close_date,
                so.owner_user_id, u.name as owner_name, so.created_at, so.updated_at
@@ -298,7 +299,7 @@ async def get_opportunity(
         LEFT JOIN customers c ON so.customer_id = c.id
         LEFT JOIN users u ON so.owner_user_id = u.id
         WHERE so.id = :id AND so.deleted_at IS NULL
-    """
+    """)
     result = await session.execute(query, {"id": opportunity_id})
     row = result.fetchone()
 
@@ -336,7 +337,7 @@ async def update_opportunity(
 ):
     """Update a sales opportunity."""
     # Check if exists and has permission
-    query = "SELECT owner_user_id FROM sales_opportunities WHERE id = :id AND deleted_at IS NULL"
+    query = text("SELECT owner_user_id FROM sales_opportunities WHERE id = :id AND deleted_at IS NULL")
     result = await session.execute(query, {"id": opportunity_id})
     row = result.fetchone()
 
@@ -374,7 +375,7 @@ async def update_opportunity(
 
     if update_fields:
         update_fields.append("updated_at = NOW()")
-        update_query = f"UPDATE sales_opportunities SET {', '.join(update_fields)} WHERE id = :id"
+        update_query = text(f"UPDATE sales_opportunities SET {', '.join(update_fields)} WHERE id = :id")
         await session.execute(update_query, params)
 
     # Fetch updated record
@@ -390,7 +391,7 @@ async def update_opportunity_stage(
 ):
     """Update opportunity stage only."""
     # Check if exists and has permission
-    query = "SELECT owner_user_id FROM sales_opportunities WHERE id = :id AND deleted_at IS NULL"
+    query = text("SELECT owner_user_id FROM sales_opportunities WHERE id = :id AND deleted_at IS NULL")
     result = await session.execute(query, {"id": opportunity_id})
     row = result.fetchone()
 
@@ -405,16 +406,16 @@ async def update_opportunity_stage(
         raise ValueError(f"Invalid stage. Must be one of: {', '.join(STAGE_ORDER)}")
 
     # Update stage
-    update_query = """
+    update_query = text("""
         UPDATE sales_opportunities
         SET stage = :stage, updated_at = NOW()
         WHERE id = :id
-    """
+    """)
     await session.execute(update_query, {"id": opportunity_id, "stage": request.stage})
 
     # Handle won/lost - set closed_at
     if request.stage in ('won', 'lost'):
-        closed_query = "UPDATE sales_opportunities SET closed_at = NOW() WHERE id = :id"
+        closed_query = text("UPDATE sales_opportunities SET closed_at = NOW() WHERE id = :id")
         await session.execute(closed_query, {"id": opportunity_id})
 
     # Fetch updated record
@@ -429,7 +430,7 @@ async def delete_opportunity(
 ):
     """Delete a sales opportunity."""
     # Check if exists and has permission
-    query = "SELECT owner_user_id FROM sales_opportunities WHERE id = :id AND deleted_at IS NULL"
+    query = text("SELECT owner_user_id FROM sales_opportunities WHERE id = :id AND deleted_at IS NULL")
     result = await session.execute(query, {"id": opportunity_id})
     row = result.fetchone()
 
@@ -440,5 +441,5 @@ async def delete_opportunity(
         raise ForbiddenException("You don't have permission to delete this opportunity")
 
     # Soft delete
-    delete_query = "UPDATE sales_opportunities SET deleted_at = NOW() WHERE id = :id"
+    delete_query = text("UPDATE sales_opportunities SET deleted_at = NOW() WHERE id = :id")
     await session.execute(delete_query, {"id": opportunity_id})
