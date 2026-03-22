@@ -73,18 +73,18 @@ async def list_import_batches(
         params["import_type"] = import_type
 
     # Count
-    count_query = f"SELECT COUNT(*) FROM import_batches WHERE {base_where}"
+    count_query = text(f"SELECT COUNT(*) FROM import_batches WHERE {base_where}")
     result = await session.execute(count_query, params)
     total = result.scalar()
 
     # Data
-    data_query = f"""
+    data_query = text(f"""
         SELECT id, batch_no, import_type, file_name, status, total_rows, success_rows, failed_rows, started_at, finished_at, created_at
         FROM import_batches
         WHERE {base_where}
         ORDER BY created_at DESC
         OFFSET :offset LIMIT :limit
-    """
+    """)
     params["offset"] = offset
     params["limit"] = page_size
 
