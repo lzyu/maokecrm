@@ -89,16 +89,16 @@ export default function UserListPage() {
 
   const columns: ColumnsType<User> = [
     {
-      title: '用户名',
-      dataIndex: 'username',
-      key: 'username',
-      width: 120,
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      width: 80,
     },
     {
       title: '姓名',
-      dataIndex: 'real_name',
-      key: 'real_name',
-      width: 100,
+      dataIndex: 'name',
+      key: 'name',
+      width: 120,
     },
     {
       title: '邮箱',
@@ -125,11 +125,11 @@ export default function UserListPage() {
     },
     {
       title: '状态',
-      dataIndex: 'is_active',
-      key: 'is_active',
+      dataIndex: 'status',
+      key: 'status',
       width: 80,
-      render: (active: boolean) => (
-        <Tag color={active ? 'green' : 'red'}>{active ? '正常' : '禁用'}</Tag>
+      render: (status: string) => (
+        <Tag color={status === 'active' ? 'green' : 'red'}>{status === 'active' ? '正常' : '禁用'}</Tag>
       ),
     },
     {
@@ -202,27 +202,27 @@ export default function UserListPage() {
           onFinish={handleCreateUser}
         >
           <Form.Item
-            name="username"
-            label="用户名"
-            rules={[{ required: true, message: '请输入用户名' }]}
+            name="name"
+            label="姓名"
+            rules={[{ required: true, message: '请输入姓名' }]}
           >
-            <Input />
+            <Input placeholder="请输入姓名" />
           </Form.Item>
           <Form.Item
             name="password"
             label="密码"
-            rules={[{ required: true, message: '请输入密码' }]}
+            rules={[
+              { required: true, message: '请输入密码' },
+              { min: 6, message: '密码至少6位' },
+            ]}
           >
-            <Input.Password />
-          </Form.Item>
-          <Form.Item name="real_name" label="姓名">
-            <Input />
+            <Input.Password placeholder="请输入密码" />
           </Form.Item>
           <Form.Item name="email" label="邮箱">
-            <Input />
+            <Input placeholder="请输入邮箱" />
           </Form.Item>
           <Form.Item name="phone" label="手机号">
-            <Input />
+            <Input placeholder="请输入手机号" />
           </Form.Item>
           <Form.Item
             name="role_id"
@@ -230,6 +230,7 @@ export default function UserListPage() {
             rules={[{ required: true, message: '请选择角色' }]}
           >
             <Select
+              placeholder="请选择角色"
               options={[
                 { value: 2, label: '管理员' },
                 { value: 3, label: '销售' },
