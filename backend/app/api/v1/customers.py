@@ -49,23 +49,27 @@ class CustomerUpdateRequest(BaseModel):
 
 
 def apply_masking(customer_read: CustomerRead, role_name: str) -> CustomerRead:
-    """Apply data masking for consultant role."""
-    if role_name == RoleName.CONSULTANT.value:
-        customer_read.phone = mask_phone(customer_read.phone)
-        customer_read.wechat = mask_wechat(customer_read.wechat)
+    """Apply data masking for sensitive fields.
+
+    In V1, no masking is applied - all users can see full customer info.
+    """
     return customer_read
 
 
 def can_access_all_customers(role_name: str) -> bool:
-    """Check if role can access all customers."""
-    return is_admin_or_above(role_name)
+    """Check if role can access all customers.
+
+    All authenticated users can access all customers in V1.
+    """
+    return True
 
 
 def can_modify_customer(role_name: str, customer_owner_id: int, current_user_id: int) -> bool:
-    """Check if user can modify a specific customer."""
-    if is_admin_or_above(role_name):
-        return True
-    return customer_owner_id == current_user_id
+    """Check if user can modify a specific customer.
+
+    All authenticated users can modify all customers in V1.
+    """
+    return True
 
 
 @router.get("", response_model=CustomerListResponse)
