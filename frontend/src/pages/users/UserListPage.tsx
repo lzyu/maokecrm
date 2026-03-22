@@ -232,9 +232,10 @@ export default function UserListPage() {
             <Select
               placeholder="请选择角色"
               options={[
-                { value: 2, label: '管理员' },
-                { value: 3, label: '销售' },
-                { value: 4, label: '咨询师' },
+                { value: 1, label: '销售' },
+                { value: 2, label: '咨询师' },
+                { value: 3, label: '管理员' },
+                { value: 4, label: '超级管理员' },
               ]}
             />
           </Form.Item>
