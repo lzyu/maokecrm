@@ -12,6 +12,7 @@ import ServiceRecordListPage from './pages/services/ServiceRecordListPage'
 import ReminderListPage from './pages/reminders/ReminderListPage'
 import ImportPage from './pages/imports/ImportPage'
 import AuditLogPage from './pages/audit/AuditLogPage'
+import SettingsPage from './pages/settings/SettingsPage'
 
 // Protected route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -85,6 +86,14 @@ function App() {
             element={
               <AdminRoute>
                 <AuditLogPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="settings"
+            element={
+              <AdminRoute>
+                <SettingsPage />
               </AdminRoute>
             }
           />
