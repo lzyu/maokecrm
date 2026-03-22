@@ -1,9 +1,11 @@
 """FastAPI application entry point."""
 
+import traceback
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.api.v1.router import api_router
 from app.config import settings
@@ -53,3 +55,14 @@ async def health_check():
 async def readiness_check():
     """Readiness check endpoint."""
     return {"status": "ready"}
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Global exception handler for debugging."""
+    print(f"Unhandled exception: {exc}")
+    traceback.print_exc()
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc), "type": type(exc).__name__},
+    )
