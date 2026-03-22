@@ -4,7 +4,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
-from sqlalchemy import func
+from sqlalchemy import func, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import CurrentUser, get_session
@@ -124,16 +124,16 @@ async def list_audit_logs(
     where_clause = " AND ".join(where_clauses)
 
     # Count query
-    count_query = f"""
+    count_query = text(f"""
         SELECT COUNT(*)
         FROM audit_logs al
         WHERE {where_clause}
-    """
+    """)
     result = await session.execute(count_query, params)
     total = result.scalar()
 
     # Data query with user join for actor name
-    data_query = f"""
+    data_query = text(f"""
         SELECT al.id, al.actor_user_id, u.name as actor_name, al.action,
                al.resource_type, al.resource_id, al.before_data, al.after_data,
                al.ip_address::text, al.user_agent, al.created_at
@@ -142,7 +142,7 @@ async def list_audit_logs(
         WHERE {where_clause}
         ORDER BY al.created_at DESC
         OFFSET :offset LIMIT :limit
-    """
+    """)
     params["offset"] = offset
     params["limit"] = page_size
 
@@ -203,27 +203,27 @@ async def get_audit_log_stats(
     where_clause = " AND ".join(where_clauses)
 
     # Total count
-    total_query = f"SELECT COUNT(*) FROM audit_logs WHERE {where_clause}"
+    total_query = text(f"SELECT COUNT(*) FROM audit_logs WHERE {where_clause}")
     result = await session.execute(total_query, params)
     total_logs = result.scalar()
 
     # Action counts
-    action_query = f"""
+    action_query = text(f"""
         SELECT action, COUNT(*) as cnt
         FROM audit_logs
         WHERE {where_clause}
         GROUP BY action
-    """
+    """)
     result = await session.execute(action_query, params)
     action_counts = {row[0]: row[1] for row in result.fetchall()}
 
     # Resource type counts
-    resource_query = f"""
+    resource_query = text(f"""
         SELECT resource_type, COUNT(*) as cnt
         FROM audit_logs
         WHERE {where_clause}
         GROUP BY resource_type
-    """
+    """)
     result = await session.execute(resource_query, params)
     resource_type_counts = {row[0]: row[1] for row in result.fetchall()}
 

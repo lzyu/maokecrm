@@ -18,18 +18,18 @@ class AuditLog(SQLModel, table=True):
     __tablename__ = "audit_logs"
 
     id: int | None = Field(default=None, primary_key=True)
-    user_id: int | None = Field(default=None, foreign_key="users.id", index=True)
+    actor_user_id: int | None = Field(default=None, foreign_key="users.id", index=True)
     action: str = Field(max_length=50)
     resource_type: str = Field(max_length=50)
     resource_id: int | None = Field(default=None)
-    old_value: dict | None = Field(default=None, sa_column=Column(JSONB))
-    new_value: dict | None = Field(default=None, sa_column=Column(JSONB))
+    before_data: dict | None = Field(default=None, sa_column=Column(JSONB))
+    after_data: dict | None = Field(default=None, sa_column=Column(JSONB))
     ip_address: str | None = Field(default=None, max_length=45)
     user_agent: str | None = Field(default=None)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     # Relationships
-    user: Optional["User"] = Relationship()
+    actor: Optional["User"] = Relationship()
 
 
 class ConsultationAnalysis(SQLModel, table=True):
