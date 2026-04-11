@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Optional, Any
 
 from sqlmodel import Field, Relationship, SQLModel
 from sqlalchemy import Column, JSON
-from sqlalchemy.dialects.postgresql import JSONB
 
 if TYPE_CHECKING:
     from app.models.user import User
@@ -60,7 +59,7 @@ class ImportError(SQLModel, table=True):
     row_no: int
     error_code: str = Field(max_length=50)
     error_message: str
-    row_data: dict | None = Field(default=None, sa_column=Column(JSONB))
+    row_data: dict | None = Field(default=None, sa_column=Column(JSON))
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 

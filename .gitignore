@@ -37,3 +37,6 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Local SQLite (dev fallback)
+backend/*.db

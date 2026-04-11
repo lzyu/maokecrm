@@ -4,8 +4,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Optional, Any
 
 from sqlmodel import Field, Relationship, SQLModel
-from sqlalchemy import Column
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import Column, JSON
 
 if TYPE_CHECKING:
     from app.models.user import User
@@ -25,7 +24,7 @@ class PipelineEvent(SQLModel, table=True):
     description: str | None = Field(default=None)
     operator_id: int | None = Field(default=None, foreign_key="users.id")
     reference_id: int | None = Field(default=None)
-    extra_data: dict | None = Field(default=None, sa_column=Column(JSONB))
+    extra_data: dict | None = Field(default=None, sa_column=Column(JSON))
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     # Relationships

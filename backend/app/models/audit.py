@@ -4,8 +4,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Optional, Any
 
 from sqlmodel import Field, Relationship, SQLModel
-from sqlalchemy import Column
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import Column, JSON
 
 if TYPE_CHECKING:
     from app.models.user import User
@@ -22,8 +21,8 @@ class AuditLog(SQLModel, table=True):
     action: str = Field(max_length=50)
     resource_type: str = Field(max_length=50)
     resource_id: int | None = Field(default=None)
-    before_data: dict | None = Field(default=None, sa_column=Column(JSONB))
-    after_data: dict | None = Field(default=None, sa_column=Column(JSONB))
+    before_data: dict | None = Field(default=None, sa_column=Column(JSON))
+    after_data: dict | None = Field(default=None, sa_column=Column(JSON))
     ip_address: str | None = Field(default=None, max_length=45)
     user_agent: str | None = Field(default=None)
     created_at: datetime = Field(default_factory=datetime.utcnow)

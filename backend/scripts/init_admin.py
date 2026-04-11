@@ -1,63 +1,62 @@
-"""Initialize admin user for testing."""
+"""Initialize super_admin user (uses DATABASE_URL from .env / .env.local)."""
 
 import asyncio
-import asyncpg
-import sys
 import os
+import sys
 
-# Add parent directory to path to import app modules
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from sqlalchemy import select
+
 from app.core.security import get_password_hash
+from app.database import async_session_maker
+from app.models.user import Role, User
 
-async def init_admin():
-    conn = await asyncpg.connect(
-        host="192.168.3.16",
-        port=5432,
-        user="root",
-        password="sk1234",
-        database="maoke"
-    )
+DEFAULT_PHONE = "admin"
+DEFAULT_PASSWORD = "admin123"
+DEFAULT_NAME = "管理员"
 
-    try:
-        # Check if admin exists
-        existing = await conn.fetchrow(
-            "SELECT id FROM users WHERE phone = 'admin' AND deleted_at IS NULL"
+
+async def init_admin() -> None:
+    async with async_session_maker() as session:
+        r_roles = await session.execute(select(Role))
+        if not r_roles.scalars().all():
+            for name in ("sales", "consultant", "admin", "super_admin"):
+                session.add(Role(role_name=name))
+            await session.commit()
+
+        r_user = await session.execute(
+            select(User).where(User.phone == DEFAULT_PHONE, User.deleted_at.is_(None))
         )
-
-        if existing:
-            print("Admin user already exists")
+        if r_user.scalar_one_or_none():
+            print("管理员已存在，跳过创建。")
+            print(f"登录账号: {DEFAULT_PHONE}")
+            print(f"密码: {DEFAULT_PASSWORD}")
             return
 
-        # Get super_admin role
-        role = await conn.fetchrow(
-            "SELECT id FROM roles WHERE role_name = 'super_admin'"
+        r_role = await session.execute(
+            select(Role).where(Role.role_name == "super_admin")
         )
+        role = r_role.scalar_one_or_none()
+        if role is None:
+            raise RuntimeError("缺少 super_admin 角色")
 
-        if not role:
-            print("super_admin role not found, creating roles...")
-            await conn.execute("""
-                INSERT INTO roles (role_name)
-                VALUES ('sales'), ('consultant'), ('admin'), ('super_admin')
-                ON CONFLICT (role_name) DO NOTHING
-            """)
-            role = await conn.fetchrow(
-                "SELECT id FROM roles WHERE role_name = 'super_admin'"
+        session.add(
+            User(
+                name=DEFAULT_NAME,
+                role_id=role.id,
+                phone=DEFAULT_PHONE,
+                password_hash=get_password_hash(DEFAULT_PASSWORD),
+                status="active",
             )
+        )
+        await session.commit()
 
-        # Create admin user
-        password_hash = get_password_hash("admin123")
-        await conn.execute("""
-            INSERT INTO users (name, role_id, phone, password_hash, status, created_at, updated_at)
-            VALUES ('管理员', $1, 'admin', $2, 'active', NOW(), NOW())
-        """, role['id'], password_hash)
+        print("已创建超级管理员。")
+        print(f"登录账号（手机号字段）: {DEFAULT_PHONE}")
+        print(f"密码: {DEFAULT_PASSWORD}")
+        print("角色: super_admin")
 
-        print("Admin user created successfully!")
-        print("账号: admin")
-        print("密码: admin123")
-
-    finally:
-        await conn.close()
 
 if __name__ == "__main__":
     asyncio.run(init_admin())
