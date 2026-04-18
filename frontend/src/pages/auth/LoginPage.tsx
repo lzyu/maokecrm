@@ -57,17 +57,14 @@ export default function LoginPage() {
 
   return (
     <div className={styles.container}>
-      {/* Floating orbs for background effect */}
-      <div className={`${styles.orb} ${styles.orb1}`} />
-      <div className={`${styles.orb} ${styles.orb2}`} />
-      <div className={`${styles.orb} ${styles.orb3}`} />
-
       <div className={styles.card}>
         <div className={styles.logoWrapper}>
           <div className={styles.logo}>
             <span>猫</span>
           </div>
         </div>
+        <h1 className={styles.title}>猫课 CRM</h1>
+        <p className={styles.subtitle}>欢迎回来，请登录后继续工作</p>
 
         <Form
           form={form}
@@ -80,16 +77,19 @@ export default function LoginPage() {
             rules={[{ required: true, message: '请输入用户名' }]}
           >
             <Input
+              className={styles.loginInput}
               prefix={<UserOutlined />}
               placeholder="用户名"
             />
           </Form.Item>
 
           <Form.Item
+            className={styles.passwordItem}
             name="password"
             rules={[{ required: true, message: '请输入密码' }]}
           >
             <Input.Password
+              className={styles.loginInput}
               prefix={<LockOutlined />}
               placeholder="密码"
             />

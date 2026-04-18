@@ -14,11 +14,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--color-bg-primary);
+  background: var(--color-surface);
   border-radius: 16px;
   padding: 20px 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-soft);
 }
 
 .header h2 {
@@ -34,52 +34,54 @@
   padding: 0 20px;
   font-weight: 600;
   border-radius: 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  background: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  box-shadow: 0 6px 14px rgba(59, 130, 246, 0.24);
   transition: all 0.2s ease;
 }
 
 .headerButton:hover {
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.28);
 }
 
 /* Filters section */
 .filters {
-  background: var(--color-bg-primary);
+  background: var(--color-surface);
   border-radius: 16px;
   padding: 20px 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-soft);
 }
 
 .filters :global(.ant-input) {
   height: 40px;
   border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border-soft);
   transition: all 0.2s ease;
 }
 
 .filters :global(.ant-input:hover) {
-  border-color: #cbd5e1;
+  border-color: #c7d2e3;
 }
 
 .filters :global(.ant-input:focus) {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 
 .filters :global(.ant-select-selector) {
   height: 40px !important;
   border-radius: 10px !important;
-  border: 1px solid #e2e8f0 !important;
+  border: 1px solid var(--color-border-soft) !important;
   transition: all 0.2s ease;
 }
 
 .filters :global(.ant-select-focused .ant-select-selector) {
-  border-color: #667eea !important;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12) !important;
 }
 
 .filters :global(.ant-btn) {
@@ -90,17 +92,17 @@
 }
 
 .filters :global(.ant-btn-default:hover) {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: #f7faff;
+  border-color: #c7d2e3;
 }
 
 /* Table container */
 .tableContainer {
-  background: var(--color-bg-primary);
+  background: var(--color-surface);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-soft);
   width: 100%;
   flex: 1;
   min-width: 0;
@@ -118,20 +120,20 @@
 
 /* Table styling */
 .tableContainer :global(.ant-table-thead > tr > th) {
-  background: #f8fafc !important;
+  background: #f7f9fd !important;
   font-weight: 600;
-  color: #64748b;
-  border-bottom: 1px solid #e2e8f0 !important;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border-soft) !important;
   padding: 14px 16px;
 }
 
 .tableContainer :global(.ant-table-tbody > tr > td) {
   padding: 14px 16px;
-  border-bottom: 1px solid #f1f5f9 !important;
+  border-bottom: 1px solid #eef2f8 !important;
 }
 
 .tableContainer :global(.ant-table-tbody > tr:hover > td) {
-  background: #fafbfc !important;
+  background: #f7faff !important;
 }
 
 /* Status tags */
@@ -150,7 +152,7 @@
 }
 
 .tableContainer :global(.ant-btn-link:hover) {
-  background: rgba(102, 126, 234, 0.08);
+  background: #edf4ff;
   border-radius: 6px;
 }
 
@@ -161,12 +163,12 @@
 
 .tableContainer :global(.ant-pagination-item) {
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border-soft);
 }
 
 .tableContainer :global(.ant-pagination-item-active) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: #667eea;
+  background: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 .tableContainer :global(.ant-pagination-item-active a) {

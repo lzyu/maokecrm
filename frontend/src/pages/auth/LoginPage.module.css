@@ -3,261 +3,128 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-  position: relative;
-  overflow: hidden;
-}
-
-/* Animated background shapes */
-.container::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background:
-    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(79, 172, 254, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(167, 139, 250, 0.08) 0%, transparent 40%);
-  animation: float 20s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  25% {
-    transform: translate(2%, 2%) rotate(1deg);
-  }
-  50% {
-    transform: translate(0, 4%) rotate(0deg);
-  }
-  75% {
-    transform: translate(-2%, 2%) rotate(-1deg);
-  }
-}
-
-/* Floating orbs */
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(60px);
-  opacity: 0.5;
-  animation: orbFloat 15s ease-in-out infinite;
-}
-
-.orb1 {
-  width: 300px;
-  height: 300px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  top: 10%;
-  left: 10%;
-  animation-delay: 0s;
-}
-
-.orb2 {
-  width: 400px;
-  height: 400px;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  bottom: 10%;
-  right: 10%;
-  animation-delay: -5s;
-}
-
-.orb3 {
-  width: 250px;
-  height: 250px;
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  top: 60%;
-  left: 60%;
-  animation-delay: -10s;
-}
-
-@keyframes orbFloat {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-  25% {
-    transform: translate(30px, -30px) scale(1.05);
-  }
-  50% {
-    transform: translate(-20px, 20px) scale(0.95);
-  }
-  75% {
-    transform: translate(20px, 30px) scale(1.02);
-  }
+  background: var(--color-bg-secondary);
 }
 
 .card {
   width: 420px;
   max-width: 90vw;
-  box-shadow:
-    0 25px 50px -12px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
-  backdrop-filter: blur(20px);
-  background: rgba(255, 255, 255, 0.95);
-  position: relative;
-  z-index: 1;
-  overflow: hidden;
-}
-
-/* Card top accent */
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-}
-
-.card :global(.ant-card-head) {
-  border-bottom: none;
-  padding: 40px 40px 0;
-}
-
-.card :global(.ant-card-head-title) {
-  text-align: center;
-  font-size: 28px;
-  font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.5px;
-}
-
-.card :global(.ant-card-body) {
-  padding: 24px 40px 40px;
+  padding: 36px 34px 30px;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
 }
 
 .card :global(.ant-form-item) {
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 
-.card :global(.ant-form-item:last-child) {
+.card :global(.ant-form-item:last-of-type) {
   margin-bottom: 0;
 }
 
 .card :global(.ant-input) {
-  height: 52px;
+  height: 46px;
   font-size: 15px;
   border-radius: 12px;
-  padding-left: 44px;
-  background: #f8fafc;
-  border: 2px solid transparent;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.card :global(.ant-input:hover) {
-  background: #fff;
-  border-color: #e2e8f0;
-}
-
-.card :global(.ant-input:focus),
-.card :global(.ant-input-focused) {
-  background: #fff;
-  border-color: #667eea;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  box-shadow: none;
 }
 
 .card :global(.ant-input-affix-wrapper) {
-  height: 52px;
+  height: 46px;
+  display: flex;
+  align-items: center;
   border-radius: 12px;
-  background: #f8fafc;
-  border: 2px solid transparent;
-  padding: 0 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.card :global(.ant-input-affix-wrapper:hover) {
   background: #fff;
-  border-color: #e2e8f0;
-}
-
-.card :global(.ant-input-affix-wrapper-focused) {
-  background: #fff;
-  border-color: #667eea;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  border: 1px solid var(--color-border-soft);
+  box-shadow: 0 1px 2px rgba(31, 45, 61, 0.04);
+  padding: 0 12px;
 }
 
 .card :global(.ant-input-affix-wrapper .ant-input) {
-  height: auto;
+  height: 40px;
+  line-height: 40px;
+  padding: 0;
   background: transparent;
-  padding-left: 8px;
+  box-shadow: none;
 }
 
 .card :global(.ant-input-prefix) {
-  margin-right: 8px;
-  color: #94a3b8;
-  font-size: 16px;
+  width: 18px;
+  margin-right: 10px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-text-tertiary);
+  font-size: 15px;
+}
+
+.loginInput:global(.ant-input-affix-wrapper:hover) {
+  border-color: #c6d4ea;
+}
+
+.loginInput:global(.ant-input-affix-wrapper-focused) {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.passwordItem {
+  margin-bottom: 18px;
+}
+
+.card :global(.ant-input-password-icon) {
+  color: var(--color-text-tertiary);
+  font-size: 15px;
+  transition: color var(--transition-fast);
+}
+
+.card :global(.ant-input-password-icon:hover) {
+  color: var(--color-accent);
 }
 
 .card :global(.ant-btn) {
-  height: 52px;
-  font-size: 16px;
+  height: 46px;
+  font-size: 15px;
   font-weight: 600;
   border-radius: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 4px;
 }
 
-.card :global(.ant-btn:hover) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-}
-
-.card :global(.ant-btn:active) {
-  transform: translateY(0);
-}
-
-/* Form label styling */
-.card :global(.ant-form-item-label > label) {
-  font-weight: 500;
-  color: #475569;
-  font-size: 14px;
-}
-
-/* Error message styling */
-.card :global(.ant-form-item-explain-error) {
-  margin-top: 6px;
-  font-size: 13px;
-}
-
-/* Subtitle */
-.subtitle {
-  text-align: center;
-  color: #94a3b8;
-  font-size: 14px;
-  margin-top: -16px;
-  margin-bottom: 24px;
-}
-
-/* Logo wrapper */
 .logoWrapper {
   display: flex;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .logo {
-  width: 64px;
-  height: 64px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 16px;
+  width: 60px;
+  height: 60px;
+  background: var(--color-accent);
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+  box-shadow: none;
 }
 
 .logo span {
   color: white;
-  font-size: 32px;
+  font-size: 30px;
   font-weight: 700;
+}
+
+.title {
+  margin: 0;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 650;
+  color: var(--color-text-primary);
+}
+
+.subtitle {
+  margin: 8px 0 24px;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 14px;
 }

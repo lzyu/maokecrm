@@ -13,9 +13,11 @@
   top: 0;
   bottom: 0;
   z-index: 100;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-normal);
   flex-shrink: 0;
-  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%) !important;
+  background: var(--color-bg-primary) !important;
+  border-right: 1px solid var(--color-border-soft);
+  box-shadow: none;
 }
 
 .siderCollapsed {
@@ -29,8 +31,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--color-bg-primary);
+  border-bottom: 1px solid var(--color-border-soft);
   position: relative;
   overflow: hidden;
 }
@@ -42,20 +44,20 @@
   right: 0;
   bottom: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(90, 110, 229, 0.3), transparent);
 }
 
 .logoIcon {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 10px;
+  background: var(--color-accent);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: none;
   margin-right: 12px;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal);
 }
 
 .logoCollapsed .logoIcon {
@@ -69,10 +71,10 @@
 }
 
 .logoText {
-  color: #fff;
+  color: var(--color-text-primary);
   font-size: 17px;
   font-weight: 600;
-  letter-spacing: -0.3px;
+  letter-spacing: 0.2px;
   white-space: nowrap;
   transition: opacity 0.2s ease;
 }
@@ -108,6 +110,12 @@
   min-width: 0;
 }
 
+.menu {
+  background: transparent !important;
+  border-inline-end: none !important;
+  padding: 8px 10px;
+}
+
 /* Custom scrollbar for sidebar */
 .sider::-webkit-scrollbar {
   width: 4px;
@@ -118,10 +126,10 @@
 }
 
 .sider::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(137, 151, 173, 0.35);
   border-radius: 2px;
 }
 
 .sider::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(137, 151, 173, 0.5);
 }
