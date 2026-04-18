@@ -137,6 +137,13 @@ npm run dev
 psql -U crm_user -d crm_db -f docs/crm_v1_ddl_draft.sql
 ```
 
+## 🚢 生产部署
+
+推荐使用 Docker Compose 单机部署（前端 Nginx + 后端 FastAPI + 外部 PostgreSQL）。
+
+- 详细步骤见：[`docs/docker-compose-deploy.md`](docs/docker-compose-deploy.md)
+- 一键脚本：`./scripts/deploy-compose.sh`
+
 ## 📚 API 文档
 
 ### Swagger UI
