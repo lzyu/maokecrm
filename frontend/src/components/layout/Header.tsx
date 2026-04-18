@@ -49,7 +49,7 @@ export default function Header({ collapsed }: HeaderProps) {
               size="small"
               icon={<UserOutlined />}
               src={user?.avatar_url}
-              style={{ backgroundColor: '#0071e3' }}
+              style={{ backgroundColor: '#5a6ee5' }}
             />
             <span className={styles.userName}>{user?.real_name || user?.username}</span>
           </Space>

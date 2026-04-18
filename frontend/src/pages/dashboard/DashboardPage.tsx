@@ -110,13 +110,13 @@ export default function DashboardPage() {
   const getActivityIconStyle = (type: string) => {
     switch (type) {
       case 'customer':
-        return { background: '#eff6ff', color: '#2563eb' }
+        return { background: '#edf3ff', color: '#4f67cc' }
       case 'followup':
-        return { background: '#f0fdf4', color: '#16a34a' }
+        return { background: '#edf8f2', color: '#3b9162' }
       case 'reminder':
-        return { background: '#fef3c7', color: '#d97706' }
+        return { background: '#fcf4e8', color: '#b77826' }
       default:
-        return { background: '#f1f5f9', color: '#64748b' }
+        return { background: '#f0f4fa', color: '#6c788d' }
     }
   }
 

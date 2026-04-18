@@ -97,7 +97,7 @@ export default function AppLayout() {
         collapsible
         collapsed={collapsed}
         onCollapse={setCollapsed}
-        theme="dark"
+        theme="light"
         className={styles.sider}
         width={240}
         collapsedWidth={80}
@@ -109,11 +109,12 @@ export default function AppLayout() {
           {!collapsed && <span className={styles.logoText}>猫课 CRM</span>}
         </div>
         <Menu
-          theme="dark"
+          theme="light"
           mode="inline"
           selectedKeys={[location.pathname]}
           items={filteredMenuItems}
           onClick={handleMenuClick}
+          className={styles.menu}
         />
       </Sider>
       <Layout className={`${styles.mainLayout} ${collapsed ? styles.mainLayoutCollapsed : ''}`}>
